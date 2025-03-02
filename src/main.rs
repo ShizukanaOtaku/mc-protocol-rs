@@ -6,10 +6,9 @@ use std::{
 
 use packet::{
     inbound::{InboundPacket, PacketParseError},
-    outbound::{IntoMCPacketData, OutboundPacket},
+    outbound::OutboundPacket,
     parse_packet,
 };
-use util::var_int::VarInt;
 
 const MAX_PACKET_SIZE: usize = 2097151;
 const SERVER_STATUS: &str = "{\"version\":{\"name\":\"1.21.4\",\"protocol\":769}}";
@@ -19,13 +18,6 @@ mod util;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:25565").unwrap();
-
-    let test = parse_packet(&vec![
-        44, 123, 34, 118, 101, 114, 115, 105, 111, 110, 34, 58, 123, 34, 110, 97, 109, 101, 34, 58,
-        34, 49, 46, 50, 49, 46, 52, 34, 44, 34, 112, 114, 111, 116, 111, 99, 111, 108, 34, 58, 55,
-        54, 57, 125, 125,
-    ]);
-    println!("{test:?}");
 
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();

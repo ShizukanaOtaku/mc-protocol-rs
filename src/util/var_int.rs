@@ -1,5 +1,6 @@
 use crate::packet::outbound::IntoMCPacketData;
 
+#[derive(Debug)]
 pub struct VarInt {
     bytes: Vec<u8>,
 }
@@ -49,7 +50,7 @@ impl VarInt {
         result
     }
 
-    pub fn bytes(self) -> usize {
+    pub fn bytes(&self) -> usize {
         self.bytes.len()
     }
 }
