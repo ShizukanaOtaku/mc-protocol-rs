@@ -46,7 +46,7 @@ macro_rules! implement_packets {
                             let mut encoded_packet = Vec::new();
                             let packet_id = VarInt::new($packet_id);
                             $(
-                                encoded_packet.extend($field.into_mc_data());
+                                encoded_packet.extend($field.into_bytes());
                             )*
                             let packet_length = VarInt::new(encoded_packet.len() + packet_id.bytes());
                             let mut final_packet = Vec::new();

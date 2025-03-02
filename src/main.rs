@@ -6,7 +6,7 @@ use std::{
 
 use packet::{
     inbound::{InboundPacket, PacketParseError},
-    outbound::OutboundPacket,
+    outbound::{IntoMCPacketData, OutboundPacket},
     parse_packet,
 };
 use util::var_int::VarInt;
