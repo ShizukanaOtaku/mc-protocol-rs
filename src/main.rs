@@ -5,8 +5,8 @@ const MAX_PACKET_SIZE: usize = 2097151;
 #[derive(Debug)]
 struct Packet {
     protocol: usize,
-    id: u8,
-    length: u8,
+    id: usize,
+    length: usize,
     data: Vec<u8>,
 }
 
@@ -53,15 +53,18 @@ fn decode_varint(mut buf: &[u8]) -> Result<(usize, usize), ()> {
 }
 
 fn parse_packet(buf: &Vec<u8>) -> Packet {
-    let length = buf[0];
-    let id = buf[1];
-    let var_int = decode_varint(&buf[2..=6].to_vec()).unwrap();
-    let protocol = var_int.0;
-    let data = &buf[var_int.1 as usize..];
+    let mut shift = 0;
+    let length = decode_varint(&buf[0..5]).unwrap();
+    shift += length.1;
+    let id = decode_varint(&buf[shift..shift + 5]).unwrap();
+    shift += id.1;
+    let protocol = decode_varint(&buf[shift..shift + 5]).unwrap();
+    shift += protocol.1;
+    let data = &buf[shift..];
     Packet {
-        protocol,
-        id,
-        length,
+        protocol: protocol.0,
+        id: id.0,
+        length: length.0,
         data: data.to_vec(),
     }
 }
