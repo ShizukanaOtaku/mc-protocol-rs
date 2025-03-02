@@ -1,5 +1,7 @@
 use std::{io::Read, net::TcpListener, thread};
 
+const MAX_PACKET_SIZE: usize = 2097151;
+
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:25565").unwrap();
 
@@ -13,7 +15,7 @@ fn main() {
 }
 
 fn handle_connection(stream: &mut std::net::TcpStream) {
-    let mut buf = [0; 1024];
+    let mut buf = [0; MAX_PACKET_SIZE];
     stream.read(&mut buf).unwrap();
 
     let buf = String::from_utf8(buf.to_vec()).unwrap();
