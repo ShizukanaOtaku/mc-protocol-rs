@@ -1,4 +1,8 @@
-use std::{io::Read, net::TcpListener, thread};
+use std::{
+    io::{Read, Write},
+    net::TcpListener,
+    thread,
+};
 
 const MAX_PACKET_SIZE: usize = 2097151;
 
@@ -18,20 +22,50 @@ fn handle_connection(stream: &mut std::net::TcpStream) {
     let mut buf = vec![0; MAX_PACKET_SIZE];
     let bytes_read = stream.read(&mut buf).unwrap();
     let buf = &buf[0..bytes_read];
-    println!("{buf:#?}");
+    println!("Read {bytes_read} bytes: {buf:?}");
     let packet = parse_packet(&buf.to_vec());
-    match Packet::from(&packet) {
-        Some(packet_type) => match packet_type {
-            Packet::HandshakePacket {
+    match InboundPacket::try_from(packet) {
+        Ok(packet_type) => match packet_type {
+            InboundPacket::HandshakePacket {
                 protocol_version,
                 server_address,
                 server_port,
                 next_state,
-            } => println!("A handshake was received: protocol: {protocol_version}, {server_address}:{server_port}, next_state: {next_state}"), 
+            } => {
+                println!("A handshake was received: protocol: {protocol_version}, {server_address}:{server_port}, next_state: {next_state}");
+                let status_json = "
+                {
+                    \"version\": {
+                    \"name\": \"1.21.4\",
+                    \"protocol\": 769
+                },
+                \"players\": {
+                    \"max\": 64,
+                    \"online\": 8,
+                    \"sample\": [
+                        {
+                            \"name\": \"rustmc\",
+                            \"id\": \"4566e69f-c907-48ee-8d71-d7ba5aa00d20\"
+                        }
+                    ]
+                },
+                \"description\": {
+                    \"text\": \"Rust says hello! :3\"
+                },
+                \"favicon\": \"data:image/png;base64,<data>\",
+                \"enforcesSecureChat\": false
+                }
+                "
+                .to_string();
+                let response = OutboundPacket::StatusResponsePacket { status_json };
+                let bytes: Vec<u8> = response.into();
+                stream.write(bytes.as_slice()).unwrap();
+            }
         },
-        None => {
-            println!("Packet of id {} is not implemented yet.", packet.id);
-        }
+        Err(error) => match error {
+            PacketParseError::CorruptPacket => println!("Corrupt packet received."),
+            PacketParseError::UnknownPacket { id } => println!("Unknown packet type: {id}"),
+        },
     }
 }
 
@@ -43,7 +77,7 @@ struct RawPacket {
 }
 
 #[derive(Debug)]
-enum Packet {
+enum InboundPacket {
     HandshakePacket {
         protocol_version: usize,
         server_address: String,
@@ -52,8 +86,42 @@ enum Packet {
     },
 }
 
-impl Packet {
-    pub fn from(raw_packet: &RawPacket) -> Option<Self> {
+#[derive(Debug)]
+enum OutboundPacket {
+    StatusResponsePacket { status_json: String },
+}
+
+impl Into<Vec<u8>> for OutboundPacket {
+    fn into(self) -> Vec<u8> {
+        match self {
+            OutboundPacket::StatusResponsePacket { status_json } => {
+                let mut buf = Vec::new();
+                buf.extend(encode_varint(status_json.len()));
+                buf.extend(status_json.bytes());
+
+                let mut final_buf = Vec::new();
+                let packet_id = encode_varint(0x00);
+                let len = buf.len() + packet_id.len();
+
+                final_buf.extend(encode_varint(len));
+                final_buf.extend(packet_id);
+                final_buf.extend(buf);
+
+                final_buf
+            }
+        }
+    }
+}
+
+enum PacketParseError {
+    CorruptPacket,
+    UnknownPacket { id: usize },
+}
+
+impl TryFrom<RawPacket> for InboundPacket {
+    type Error = PacketParseError;
+
+    fn try_from(raw_packet: RawPacket) -> Result<Self, Self::Error> {
         match raw_packet.id {
             0 => {
                 let protocol_version = decode_varint(&raw_packet.data[0..5]).unwrap();
@@ -73,14 +141,14 @@ impl Packet {
                 let next_state = decode_varint(&raw_packet.data[shift + len.0 + 2..])
                     .unwrap()
                     .0;
-                Some(Self::HandshakePacket {
+                Ok(Self::HandshakePacket {
                     protocol_version: protocol_version.0,
                     server_address,
                     server_port,
                     next_state,
                 })
             }
-            _ => None,
+            _ => Err(PacketParseError::UnknownPacket { id: raw_packet.id }),
         }
     }
 }
