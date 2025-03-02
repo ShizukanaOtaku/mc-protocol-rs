@@ -18,14 +18,16 @@ fn handle_connection(stream: &mut std::net::TcpStream) {
     let mut buf = vec![0; MAX_PACKET_SIZE];
     let bytes_read = stream.read(&mut buf).unwrap();
     let buf = &buf[0..bytes_read];
+    println!("{buf:#?}");
     let packet = parse_packet(&buf.to_vec());
     match Packet::from(&packet) {
         Some(packet_type) => match packet_type {
             Packet::HandshakePacket {
+                protocol_version,
                 server_address,
                 server_port,
                 next_state,
-            } => println!("A handshake was received: {server_address}:{server_port}, next_state: {next_state}"), 
+            } => println!("A handshake was received: protocol: {protocol_version}, {server_address}:{server_port}, next_state: {next_state}"), 
         },
         None => {
             println!("Packet of id {} is not implemented yet.", packet.id);
@@ -35,15 +37,15 @@ fn handle_connection(stream: &mut std::net::TcpStream) {
 
 #[derive(Debug)]
 struct RawPacket {
-    protocol: usize,
-    id: usize,
     length: usize,
+    id: usize,
     data: Vec<u8>,
 }
 
 #[derive(Debug)]
 enum Packet {
     HandshakePacket {
+        protocol_version: usize,
         server_address: String,
         server_port: u16,
         next_state: usize,
@@ -54,9 +56,12 @@ impl Packet {
     pub fn from(raw_packet: &RawPacket) -> Option<Self> {
         match raw_packet.id {
             0 => {
-                let len = decode_varint(&raw_packet.data[0..5]).unwrap();
+                let protocol_version = decode_varint(&raw_packet.data[0..5]).unwrap();
+                let mut shift = protocol_version.1;
 
-                let shift = len.1;
+                let len = decode_varint(&raw_packet.data[shift..5]).unwrap();
+                shift += len.1;
+
                 let server_address =
                     String::from_utf8(raw_packet.data[shift..shift + len.0].to_vec()).unwrap();
 
@@ -69,6 +74,7 @@ impl Packet {
                     .unwrap()
                     .0;
                 Some(Self::HandshakePacket {
+                    protocol_version: protocol_version.0,
                     server_address,
                     server_port,
                     next_state,
@@ -105,18 +111,14 @@ fn decode_u16_bytes(bytes: (u8, u8)) -> u16 {
 }
 
 fn parse_packet(buf: &Vec<u8>) -> RawPacket {
-    let mut shift = 0;
     let length = decode_varint(&buf[0..5]).unwrap();
-    shift += length.1;
+    let mut shift = length.1;
     let id = decode_varint(&buf[shift..shift + 5]).unwrap();
     shift += id.1;
-    let protocol = decode_varint(&buf[shift..shift + 5]).unwrap();
-    shift += protocol.1;
     let data = &buf[shift..];
     RawPacket {
-        protocol: protocol.0,
-        id: id.0,
         length: length.0,
+        id: id.0,
         data: data.to_vec(),
     }
 }
