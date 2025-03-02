@@ -26,9 +26,9 @@ fn handle_connection(stream: &mut std::net::TcpStream) {
     let mut buf = vec![0; MAX_PACKET_SIZE];
     let bytes_read = stream.read(&mut buf).unwrap();
     let buf = &buf[0..bytes_read];
-    println!("Sucessfully read {bytes_read} bytes: {:#?}", buf);
+    println!("Sucessfully read {bytes_read} bytes: {buf:?}");
     let packet = parse_packet(&buf.to_vec());
-    println!("Parsed a packet: {:?}", packet);
+    println!("Parsed a packet: {packet:?}");
 }
 
 fn decode_varint(mut buf: &[u8]) -> Result<(usize, usize), ()> {
