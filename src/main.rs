@@ -106,6 +106,28 @@ fn decode_varint(mut buf: &[u8]) -> Result<(usize, usize), ()> {
     Err(()) // Invalid VarInt (too many bytes)
 }
 
+fn encode_varint(mut num: usize) -> Vec<u8> {
+    let mut buf = Vec::new();
+
+    loop {
+        let mut byte = (num & 0x7F) as u8;
+
+        num >>= 7;
+
+        if num != 0 {
+            byte |= 0x80;
+        }
+
+        buf.push(byte);
+
+        if num == 0 {
+            break;
+        }
+    }
+
+    buf
+}
+
 fn decode_u16_bytes(bytes: (u8, u8)) -> u16 {
     (bytes.0 as u16) << 8 | bytes.1 as u16
 }
