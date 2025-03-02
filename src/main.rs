@@ -5,6 +5,29 @@ use std::{
 };
 
 const MAX_PACKET_SIZE: usize = 2097151;
+const SERVER_STATUS: &str = "
+                {
+                    \"version\": {
+                    \"name\": \"1.21.4\",
+                    \"protocol\": 769
+                },
+                \"players\": {
+                    \"max\": 64,
+                    \"online\": 8,
+                    \"sample\": [
+                        {
+                            \"name\": \"rustmc\",
+                            \"id\": \"4566e69f-c907-48ee-8d71-d7ba5aa00d20\"
+                        }
+                    ]
+                },
+                \"description\": {
+                    \"text\": \"Rust says hello! :3\"
+                },
+                    \"favicon\": \"data:image/png;base64,<data>\",
+                    \"enforcesSecureChat\": false
+                }
+";
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:25565").unwrap();
@@ -33,31 +56,9 @@ fn handle_connection(stream: &mut std::net::TcpStream) {
                 next_state,
             } => {
                 println!("A handshake was received: protocol: {protocol_version}, {server_address}:{server_port}, next_state: {next_state}");
-                let status_json = "
-                {
-                    \"version\": {
-                    \"name\": \"1.21.4\",
-                    \"protocol\": 769
-                },
-                \"players\": {
-                    \"max\": 64,
-                    \"online\": 8,
-                    \"sample\": [
-                        {
-                            \"name\": \"rustmc\",
-                            \"id\": \"4566e69f-c907-48ee-8d71-d7ba5aa00d20\"
-                        }
-                    ]
-                },
-                \"description\": {
-                    \"text\": \"Rust says hello! :3\"
-                },
-                \"favicon\": \"data:image/png;base64,<data>\",
-                \"enforcesSecureChat\": false
-                }
-                "
-                .to_string();
-                let response = OutboundPacket::StatusResponsePacket { status_json };
+                let response = OutboundPacket::StatusResponsePacket {
+                    status_json: SERVER_STATUS.to_string(),
+                };
                 let bytes: Vec<u8> = response.into();
                 stream.write(bytes.as_slice()).unwrap();
             }
