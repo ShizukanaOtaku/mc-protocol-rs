@@ -14,6 +14,7 @@ const MAX_PACKET_SIZE: usize = 2097151;
 const SERVER_STATUS: &str = "{\"version\":{\"name\":\"1.21.4\",\"protocol\":769}}";
 
 mod packet;
+mod tests;
 mod util;
 
 fn main() {
@@ -56,7 +57,6 @@ fn handle_packet(stream: &mut std::net::TcpStream, packet: InboundPacket) {
                 status_json: SERVER_STATUS.to_string(),
             };
             let bytes: Vec<u8> = response.into();
-            println!("{bytes:?}");
             stream.write(bytes.as_slice()).unwrap();
         }
     }
