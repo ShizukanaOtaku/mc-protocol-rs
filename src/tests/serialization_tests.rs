@@ -1,7 +1,10 @@
-use crate::packet::outbound::OutboundPacket;
+use crate::{
+    packet::outbound::{IntoMCPacketData, OutboundPacket},
+    util::var_int::VarInt,
+};
 
 #[test]
-fn server_status_response_test() {
+fn server_status_response() {
     let packet = OutboundPacket::StatusResponsePacket {
         status_json: "{\"version\":{\"name\":\"1.21.4\",\"protocol\":769}}".to_string(),
     };
@@ -14,4 +17,14 @@ fn server_status_response_test() {
             108, 34, 58, 55, 54, 57, 125, 125
         ]
     )
+}
+
+#[test]
+fn var_int_serialization() {
+    let var_int = VarInt::new(5532);
+    assert_eq!(var_int.into_mc_data(), vec![156, 43]);
+    let var_int = VarInt::new(0);
+    assert_eq!(var_int.into_mc_data(), vec![0]);
+    let var_int = VarInt::new(4);
+    assert_eq!(var_int.into_mc_data(), vec![4]);
 }
