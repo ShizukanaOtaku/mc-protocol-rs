@@ -56,7 +56,7 @@ impl VarInt {
 }
 
 impl IntoMCPacketData for VarInt {
-    fn into_mc_data(&self) -> Vec<u8> {
+    fn into_mc_data(self) -> Vec<u8> {
         self.bytes.clone()
     }
 }

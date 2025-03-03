@@ -1,11 +1,11 @@
 use crate::util::var_int::VarInt;
 
 pub trait IntoMCPacketData {
-    fn into_mc_data(&self) -> Vec<u8>;
+    fn into_mc_data(self) -> Vec<u8>;
 }
 
 impl IntoMCPacketData for String {
-    fn into_mc_data(&self) -> Vec<u8> {
+    fn into_mc_data(self) -> Vec<u8> {
         let length = VarInt::new(self.len());
         let mut data = length.into_mc_data();
         data.extend(self.as_bytes());
@@ -14,19 +14,19 @@ impl IntoMCPacketData for String {
 }
 
 impl IntoMCPacketData for u8 {
-    fn into_mc_data(&self) -> Vec<u8> {
-        vec![*self]
+    fn into_mc_data(self) -> Vec<u8> {
+        vec![self]
     }
 }
 
 impl IntoMCPacketData for usize {
-    fn into_mc_data(&self) -> Vec<u8> {
+    fn into_mc_data(self) -> Vec<u8> {
         self.to_le_bytes().to_vec()
     }
 }
 
 impl IntoMCPacketData for i32 {
-    fn into_mc_data(&self) -> Vec<u8> {
+    fn into_mc_data(self) -> Vec<u8> {
         self.to_le_bytes().to_vec()
     }
 }
