@@ -10,6 +10,8 @@ pub struct RawPacket {
     data: Vec<u8>,
 }
 
+#[allow(clippy::ptr_arg)] // Some packets may be greater than the stack allows, so using the heap
+                          // is neccesary
 pub fn parse_packet(buf: &Vec<u8>) -> RawPacket {
     let length = decode_varint(&buf[0..5]).unwrap();
     let mut shift = length.1;
