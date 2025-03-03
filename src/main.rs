@@ -57,7 +57,7 @@ fn handle_packet(stream: &mut std::net::TcpStream, packet: InboundPacket) {
                 status_json: SERVER_STATUS.to_string(),
             };
             let bytes: Vec<u8> = response.into();
-            stream.write(bytes.as_slice()).unwrap();
+            stream.write_all(bytes.as_slice()).unwrap();
         }
     }
 }
