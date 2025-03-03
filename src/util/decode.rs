@@ -20,5 +20,5 @@ pub fn decode_varint(mut buf: &[u8]) -> Result<(usize, usize), ()> {
 }
 
 pub fn decode_u16_bytes(bytes: (u8, u8)) -> u16 {
-    (bytes.0 as u16) << 8 | bytes.1 as u16
+    ((bytes.0 as u16) << 8) | bytes.1 as u16
 }
