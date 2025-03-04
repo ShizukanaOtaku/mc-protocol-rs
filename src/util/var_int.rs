@@ -1,4 +1,4 @@
-use crate::packet::outbound::IntoMCPacketData;
+use crate::packet::outbound::MCEncode;
 
 #[derive(Debug)]
 pub struct VarInt {
@@ -55,7 +55,7 @@ impl VarInt {
     }
 }
 
-impl IntoMCPacketData for VarInt {
+impl MCEncode for VarInt {
     fn into_mc_data(self) -> Vec<u8> {
         self.bytes.clone()
     }

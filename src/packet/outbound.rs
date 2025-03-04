@@ -1,10 +1,10 @@
 use crate::util::var_int::VarInt;
 
-pub trait IntoMCPacketData {
+pub trait MCEncode {
     fn into_mc_data(self) -> Vec<u8>;
 }
 
-impl IntoMCPacketData for String {
+impl MCEncode for String {
     fn into_mc_data(self) -> Vec<u8> {
         let length = VarInt::new(self.len());
         let mut data = length.into_mc_data();
@@ -13,24 +13,25 @@ impl IntoMCPacketData for String {
     }
 }
 
-impl IntoMCPacketData for u8 {
+impl MCEncode for u8 {
     fn into_mc_data(self) -> Vec<u8> {
         vec![self]
     }
 }
 
-impl IntoMCPacketData for usize {
+impl MCEncode for usize {
     fn into_mc_data(self) -> Vec<u8> {
         self.to_le_bytes().to_vec()
     }
 }
 
-impl IntoMCPacketData for i32 {
+impl MCEncode for i32 {
     fn into_mc_data(self) -> Vec<u8> {
         self.to_le_bytes().to_vec()
     }
 }
 
+#[macro_export]
 macro_rules! implement_packets {
     ($( $packet_id:literal $variant:ident { $( $field:ident : $ty:ty ),* } ),* ) => {
         #[derive(Debug)]

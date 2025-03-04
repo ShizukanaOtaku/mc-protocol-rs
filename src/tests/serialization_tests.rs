@@ -1,5 +1,5 @@
 use crate::{
-    packet::outbound::{IntoMCPacketData, OutboundPacket},
+    packet::outbound::{MCEncode, OutboundPacket},
     util::var_int::VarInt,
 };
 

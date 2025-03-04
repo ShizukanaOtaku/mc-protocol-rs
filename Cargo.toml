@@ -1,6 +1,6 @@
 [package]
-name = "mc_server"
-version = "0.1.0"
+name = "mc-protocol"
+version = "0.1.0-1.20.4-DEV"
 edition = "2021"
 
 [dependencies]
