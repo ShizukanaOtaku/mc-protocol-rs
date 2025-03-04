@@ -264,8 +264,3 @@ You can watch this repository if you want to be notified about the first release
 - [ ] Teleport To Entity
 - [ ] Use Item On
 - [ ] Use Item
-
-
-#
-
---- the rest of the protocol is planned to be implemented later ---
