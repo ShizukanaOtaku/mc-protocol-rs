@@ -62,7 +62,7 @@ macro_rules! implement_packets {
         }
 
         impl OutboundPacket {
-            fn id(&self) -> usize {
+            pub fn id(&self) -> usize {
                 match self {
                     $(
                         OutboundPacket::$variant { .. } => {
