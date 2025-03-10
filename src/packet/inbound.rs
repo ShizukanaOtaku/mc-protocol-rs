@@ -1,6 +1,24 @@
 use crate::util::decode::{decode_u16_bytes, decode_varint};
 
-use super::RawPacket;
+use super::{ConnectionState, RawPacket};
+
+pub trait MCDeserialize<T> {
+    /// Tries to deserialize the type from raw byes.
+    /// On success, returns the deserialized type, as well as the amount of bytes used to recreate
+    /// it.
+    ///
+    /// # Examples
+    /// ```
+    /// let bytes = read_packet();
+    /// let first_int = VarInt::from_mc_bytes(&bytes);
+    ///
+    /// match first_int {
+    ///     Some(n) => println!("The packet starts with the number {n}"),
+    ///     None => println!("The packet does not start with an int."),
+    /// }
+    /// ```
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(T, usize)>;
+}
 
 #[derive(Debug)]
 pub enum InboundPacket {

@@ -3,6 +3,14 @@ use crate::util::decode::decode_varint;
 pub mod inbound;
 pub mod outbound;
 
+pub enum ConnectionState {
+    HandShaking,
+    Status,
+    Login,
+    Configuration,
+    Play,
+}
+
 #[derive(Debug)]
 pub struct RawPacket {
     length: usize,
