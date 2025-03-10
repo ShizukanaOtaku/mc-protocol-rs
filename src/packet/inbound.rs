@@ -1,8 +1,8 @@
 use crate::util::decode::{decode_u16_bytes, decode_varint};
 
-use super::{ConnectionState, RawPacket};
+use super::RawPacket;
 
-pub trait MCDeserialize<T> {
+pub trait MCDeserialize {
     /// Tries to deserialize the type from raw byes.
     /// On success, returns the deserialized type, as well as the amount of bytes used to recreate
     /// it.
@@ -17,7 +17,9 @@ pub trait MCDeserialize<T> {
     ///     None => println!("The packet does not start with an int."),
     /// }
     /// ```
-    fn from_mc_bytes(bytes: &[u8]) -> Option<(T, usize)>;
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized;
 }
 
 #[derive(Debug)]
