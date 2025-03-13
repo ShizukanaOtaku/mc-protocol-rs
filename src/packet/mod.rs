@@ -4,7 +4,7 @@ pub mod inbound;
 pub mod outbound;
 
 pub enum ConnectionState {
-    HandShaking,
+    Handshaking,
     Status,
     Login,
     Configuration,
