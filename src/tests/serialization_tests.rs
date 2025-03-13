@@ -21,10 +21,10 @@ fn server_status_response() {
 
 #[test]
 fn var_int_serialization() {
-    let var_int = VarInt::new(5532);
+    let var_int = VarInt::new(5532).unwrap();
     assert_eq!(var_int.into_mc_data(), vec![156, 43]);
-    let var_int = VarInt::new(0);
+    let var_int = VarInt::new(0).unwrap();
     assert_eq!(var_int.into_mc_data(), vec![0]);
-    let var_int = VarInt::new(4);
+    let var_int = VarInt::new(4).unwrap();
     assert_eq!(var_int.into_mc_data(), vec![4]);
 }

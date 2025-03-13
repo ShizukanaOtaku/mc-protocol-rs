@@ -6,7 +6,7 @@ pub trait MCEncode {
 
 impl MCEncode for String {
     fn into_mc_data(self) -> Vec<u8> {
-        let length = VarInt::new(self.len());
+        let length = VarInt::new(self.len()).unwrap();
         let mut data = length.into_mc_data();
         data.extend(self.as_bytes());
         data
@@ -45,11 +45,11 @@ macro_rules! implement_packets {
                     $(
                         OutboundPacket::$variant { $( $field ),* } => {
                             let mut encoded_packet = Vec::new();
-                            let packet_id = VarInt::new($packet_id);
+                            let packet_id = VarInt::new($packet_id).unwrap();
                             $(
                                 encoded_packet.extend($field.into_mc_data());
                             )*
-                            let packet_length = VarInt::new(encoded_packet.len() + &packet_id.bytes());
+                            let packet_length = VarInt::new(encoded_packet.len() + &packet_id.bytes()).unwrap();
                             let mut final_packet = Vec::new();
                             final_packet.extend(packet_length.into_mc_data());
                             final_packet.extend(packet_id.into_mc_data());
@@ -62,7 +62,7 @@ macro_rules! implement_packets {
         }
 
         impl OutboundPacket {
-            fn id(&self) -> usize {
+            pub fn id(&self) -> usize {
                 match self {
                     $(
                         OutboundPacket::$variant { .. } => {
@@ -75,6 +75,11 @@ macro_rules! implement_packets {
     };
 }
 
-implement_packets!(0x00 StatusResponsePacket {
-    status_json: String
-});
+implement_packets!(
+    0x00 StatusResponsePacket {
+        status_json: String
+    },
+    0x00 DisconnectPacket {
+        reason: String
+    }
+);
