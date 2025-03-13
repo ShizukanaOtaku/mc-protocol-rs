@@ -40,8 +40,7 @@ impl TryFrom<VarInt> for usize {
 impl MCDeserialize for VarInt {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)> {
         let bytes = &bytes[..5];
-        let mut i = 0;
-        for byte in bytes {
+        for (i, byte) in bytes.iter().enumerate() {
             if byte & 0x80 == 0 {
                 return Some((
                     VarInt {
@@ -50,7 +49,6 @@ impl MCDeserialize for VarInt {
                     i,
                 ));
             }
-            i += 1;
         }
         None
     }
