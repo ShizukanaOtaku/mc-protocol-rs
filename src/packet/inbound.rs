@@ -8,7 +8,7 @@ pub trait MCDeserialize {
     /// it.
     ///
     /// # Examples
-    /// ```
+    /// ```ignore
     /// let bytes = read_packet();
     /// let first_int = VarInt::from_mc_bytes(&bytes);
     ///
