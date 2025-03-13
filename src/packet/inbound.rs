@@ -55,26 +55,26 @@ pub enum PacketParseError {
 
 macro_rules! create_packets {
     ($(id: $id:literal, state: $state:path, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
-        enum InboundPacket {
+        pub enum InboundPacket {
             $($name {
                 $($field: $type),*
             }),*
         }
 
         impl InboundPacket {
-            fn get_state(&self) -> ConnectionState {
+            pub fn get_state(&self) -> ConnectionState {
                 match self {
                     $(Self::$name{..} => {$state})*
                 }
             }
 
-            fn get_id(&self) -> usize {
+            pub fn get_id(&self) -> usize {
                 match self {
                     $(Self::$name{..} => {$id})*
                 }
             }
 
-            fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
+            pub fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
                 match (state, raw_packet.id) {
                     $(($state, $id) => {
                         let mut offset = 0;
