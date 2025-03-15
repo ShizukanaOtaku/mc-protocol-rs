@@ -19,7 +19,7 @@ impl TryFrom<VarInt> for usize {
         let mut shift = 0;
 
         let mut bytes = value.bytes.as_slice();
-        for _ in 0..5 {
+        for _ in 0..bytes.len() {
             let byte = bytes[0];
             bytes = &bytes[1..];
 
