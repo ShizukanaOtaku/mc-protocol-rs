@@ -1,5 +1,6 @@
 use crate::util::decode::decode_varint;
 
+pub mod data_types;
 pub mod inbound;
 pub mod outbound;
 

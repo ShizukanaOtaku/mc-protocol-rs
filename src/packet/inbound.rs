@@ -53,7 +53,7 @@ pub enum PacketParseError {
     UnknownPacket { id: usize },
 }
 
-macro_rules! create_packets {
+macro_rules! inbound_packets {
     ($(id: $id:literal, state: $state:path, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
         pub enum InboundPacket {
             $($name {
@@ -89,9 +89,9 @@ macro_rules! create_packets {
                                 }
                             };
                         )*
-                            let packet = Self::$name {
-                                $($field),*
-                            };
+                        let packet = Self::$name {
+                            $($field),*
+                        };
                         return Ok(packet);
                     }),*,
                     _ => Err(PacketParseError::UnknownPacket{ id: raw_packet.id })
@@ -101,41 +101,11 @@ macro_rules! create_packets {
     };
 }
 
-create_packets!(
+inbound_packets!(
     id: 0, state: ConnectionState::Handshaking, HandshakePacket {
-        protocol_version: VarInt, server_address: String, server_port: u16, next_state: VarInt
+        protocol_version: VarInt,
+        server_address: String,
+        server_port: u16,
+        next_state: VarInt
     }
 );
-
-//impl TryFrom<RawPacket> for InboundPacket {
-//    fn try_from(raw_packet: RawPacket) -> Result<Self, Self::Error> {
-//        match raw_packet.id {
-//            0 => {
-//                let protocol_version = decode_varint(&raw_packet.data[0..5]).unwrap();
-//                let mut shift = protocol_version.1;
-//
-//                let len = decode_varint(&raw_packet.data[shift..5]).unwrap();
-//                shift += len.1;
-//
-//                let server_address =
-//                    String::from_utf8(raw_packet.data[shift..shift + len.0].to_vec()).unwrap();
-//
-//                let server_port = decode_u16_bytes((
-//                    raw_packet.data[shift + len.0],
-//                    raw_packet.data[shift + len.0 + 1],
-//                ));
-//
-//                let next_state = decode_varint(&raw_packet.data[shift + len.0 + 2..])
-//                    .unwrap()
-//                    .0;
-//                Ok(Self::HandshakePacket {
-//                    protocol_version: protocol_version.0,
-//                    server_address,
-//                    server_port,
-//                    next_state,
-//                })
-//            }
-//            _ => Err(PacketParseError::UnknownPacket { id: raw_packet.id }),
-//        }
-//    }
-//}

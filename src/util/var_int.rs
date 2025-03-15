@@ -1,4 +1,4 @@
-use crate::packet::{inbound::MCDeserialize, outbound::MCEncode};
+use crate::packet::{data_types::MCEncode, inbound::MCDeserialize};
 
 #[derive(Debug)]
 pub struct VarInt {

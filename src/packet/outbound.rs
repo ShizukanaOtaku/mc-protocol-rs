@@ -1,38 +1,8 @@
+use crate::packet::data_types::MCEncode;
 use crate::util::var_int::VarInt;
 
-pub trait MCEncode {
-    fn into_mc_data(self) -> Vec<u8>;
-}
-
-impl MCEncode for String {
-    fn into_mc_data(self) -> Vec<u8> {
-        let length = VarInt::new(self.len()).unwrap();
-        let mut data = length.into_mc_data();
-        data.extend(self.as_bytes());
-        data
-    }
-}
-
-impl MCEncode for u8 {
-    fn into_mc_data(self) -> Vec<u8> {
-        vec![self]
-    }
-}
-
-impl MCEncode for usize {
-    fn into_mc_data(self) -> Vec<u8> {
-        self.to_le_bytes().to_vec()
-    }
-}
-
-impl MCEncode for i32 {
-    fn into_mc_data(self) -> Vec<u8> {
-        self.to_le_bytes().to_vec()
-    }
-}
-
 #[macro_export]
-macro_rules! implement_packets {
+macro_rules! outbound_packets {
     ($( $packet_id:literal $variant:ident { $( $field:ident : $ty:ty ),* } ),* ) => {
         #[derive(Debug)]
         pub enum OutboundPacket {
@@ -75,11 +45,11 @@ macro_rules! implement_packets {
     };
 }
 
-implement_packets!(
-    0x00 StatusResponsePacket {
+outbound_packets!(
+    0x00 StatusResponse {
         status_json: String
     },
-    0x00 DisconnectPacket {
-        reason: String
+    0x01 PongResponse {
+        timestamp: i64
     }
 );

@@ -1,11 +1,11 @@
 use crate::{
-    packet::outbound::{MCEncode, OutboundPacket},
+    packet::{data_types::MCEncode, outbound::OutboundPacket},
     util::var_int::VarInt,
 };
 
 #[test]
 fn server_status_response() {
-    let packet = OutboundPacket::StatusResponsePacket {
+    let packet = OutboundPacket::StatusResponse {
         status_json: "{\"version\":{\"name\":\"1.21.4\",\"protocol\":769}}".to_string(),
     };
     let packet: Vec<u8> = packet.into();
