@@ -1,5 +1,5 @@
 use crate::packet::data_types::MCEncode;
-use crate::util::var_int::VarInt;
+use crate::packet::VarInt;
 
 #[macro_export]
 macro_rules! outbound_packets {

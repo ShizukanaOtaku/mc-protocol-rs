@@ -1,4 +1,6 @@
-use crate::util::var_int::VarInt;
+use var_int::VarInt;
+
+pub mod var_int;
 
 pub trait MCEncode {
     fn into_mc_data(self) -> Vec<u8>;

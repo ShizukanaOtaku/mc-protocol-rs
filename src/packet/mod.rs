@@ -1,6 +1,5 @@
+use data_types::var_int::VarInt;
 use inbound::MCDeserialize;
-
-use crate::util::var_int::VarInt;
 
 pub mod data_types;
 pub mod inbound;

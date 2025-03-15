@@ -1,6 +1,4 @@
-use crate::util::var_int::VarInt;
-
-use super::{ConnectionState, RawPacket};
+use super::{data_types::var_int::VarInt, ConnectionState, RawPacket};
 
 pub trait MCDeserialize {
     /// Tries to deserialize the type from raw byes.
