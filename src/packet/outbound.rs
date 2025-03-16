@@ -69,5 +69,8 @@ macro_rules! outbound_packets {
 outbound_packets!(
     // Status
     0x00 StatusResponse { json_response: String },
-    0x01 PongResponse { timestamp: i64 }
+    0x01 PongResponse { timestamp: i64 },
+
+    // Login
+    0x00 Disconnect { reason: String }
 );

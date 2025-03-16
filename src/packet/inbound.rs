@@ -131,5 +131,11 @@ inbound_packets!(
 
     // Status
     id: 0x00, state: ConnectionState::Status, StatusRequest {},
-    id: 0x01, state: ConnectionState::Status, PingRequest { timestamp: i64 }
+    id: 0x01, state: ConnectionState::Status, PingRequest { timestamp: i64 },
+
+    // Login
+    id: 0x00, state: ConnectionState::Login, LoginStart {
+        player_name: String,
+        player_uuid: String
+    }
 );
