@@ -16,10 +16,10 @@ You can watch this repository if you want to be notified about the first release
 
 ### Clientbound
 - [x] Status Response
-- [ ] Pong Response (status)
+- [x] Pong Response (status)
 ### Serverbound
-- [ ] Status Request
-- [ ] Ping Request (status)
+- [x] Status Request
+- [x] Ping Request (status)
 
 # Login
 
