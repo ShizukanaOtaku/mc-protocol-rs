@@ -26,7 +26,7 @@ impl TryFrom<VarInt> for isize {
                 if i > 4 {
                     return Err(VarIntParseError::WrongSize);
                 }
-                return Ok(result as isize);
+                return Ok(result);
             }
         }
 
