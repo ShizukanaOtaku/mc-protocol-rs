@@ -24,7 +24,7 @@ pub struct RawPacket {
 #[allow(clippy::ptr_arg)] // Some packets may be greater than the stack allows, so using the heap
                           // is neccesary
 pub fn parse_packet(buf: &Vec<u8>) -> Option<(RawPacket, usize)> {
-    if buf.len() == 0 {
+    if buf.is_empty() {
         return None;
     }
 
