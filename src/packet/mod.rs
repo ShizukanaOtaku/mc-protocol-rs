@@ -5,6 +5,7 @@ pub mod data_types;
 pub mod inbound;
 pub mod outbound;
 
+#[derive(Debug)]
 pub enum ConnectionState {
     Handshaking,
     Status,
