@@ -46,7 +46,6 @@ impl MCDeserialize for VarInt {
                     return None;
                 }
 
-                println!("varInt: {var_int_bytes:?}");
                 return Some((
                     VarInt {
                         bytes: var_int_bytes,
