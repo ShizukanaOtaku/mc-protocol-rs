@@ -120,6 +120,7 @@ macro_rules! inbound_packets {
 }
 
 inbound_packets!(
+    // Handshaking
     id: 0xFE, state: ConnectionState::Handshaking, LegacyServerListPing {},
     id: 0x00, state: ConnectionState::Handshaking, Handshake {
         protocol_version: VarInt,
@@ -127,6 +128,8 @@ inbound_packets!(
         server_port: u16,
         next_state: VarInt
     },
+
+    // Status
     id: 0x00, state: ConnectionState::Status, StatusRequest {},
-    id: 0x01, state: ConnectionState::Status, PingRequest {timestamp: i64}
+    id: 0x01, state: ConnectionState::Status, PingRequest { timestamp: i64 }
 );
