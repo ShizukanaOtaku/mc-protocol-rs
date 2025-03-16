@@ -11,45 +11,51 @@ pub enum VarIntParseError {
     NonTerminated,
 }
 
-impl TryFrom<VarInt> for usize {
+impl TryFrom<VarInt> for isize {
     type Error = VarIntParseError;
 
     fn try_from(value: VarInt) -> Result<Self, Self::Error> {
         let mut result = 0;
         let mut shift = 0;
 
-        let mut bytes = value.bytes.as_slice();
-        for _ in 0..bytes.len() {
-            let byte = bytes[0];
-            bytes = &bytes[1..];
-
-            let data = byte & 0x7F;
-            result |= (data as usize) << shift;
-
-            if (byte & 0x80) == 0 {
-                return Ok(result);
-            }
-
+        for (i, &byte) in value.bytes.iter().enumerate() {
+            result |= ((byte & 0x7F) as isize) << shift;
             shift += 7;
+
+            if byte & 0x80 == 0 {
+                if i > 4 {
+                    return Err(VarIntParseError::WrongSize);
+                }
+                return Ok(result as isize);
+            }
         }
 
-        Ok(result)
+        Err(VarIntParseError::NonTerminated)
     }
 }
 
 impl MCDeserialize for VarInt {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)> {
-        let bytes = &bytes[..5];
-        for (i, byte) in bytes.iter().enumerate() {
+        let mut var_int_bytes = Vec::new();
+
+        for (i, &byte) in bytes.iter().enumerate() {
+            var_int_bytes.push(byte);
+
             if byte & 0x80 == 0 {
+                if var_int_bytes.len() > 5 {
+                    return None;
+                }
+
+                println!("varInt: {var_int_bytes:?}");
                 return Some((
                     VarInt {
-                        bytes: bytes[..i].to_vec(),
+                        bytes: var_int_bytes,
                     },
-                    i,
+                    i + 1,
                 ));
             }
         }
+
         None
     }
 }

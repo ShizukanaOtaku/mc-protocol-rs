@@ -26,7 +26,7 @@ impl MCDeserialize for u16 {
         Self: Sized,
     {
         let bytes: [u8; 2] = bytes[..2].try_into().unwrap();
-        Some((u16::from_le_bytes(bytes), 2))
+        Some((u16::from_be_bytes(bytes), 2))
     }
 }
 
@@ -36,19 +36,19 @@ impl MCDeserialize for String {
         Self: Sized,
     {
         let (length, offset) = match VarInt::from_mc_bytes(bytes) {
-            Some(data) => (usize::try_from(data.0).unwrap(), data.1),
+            Some(data) => (isize::try_from(data.0).unwrap(), data.1),
             None => return None,
         };
         Some((
-            String::from_utf8(bytes[offset..offset + length].to_vec()).unwrap(),
-            offset + length,
+            String::from_utf8(bytes[offset..offset + length as usize].to_vec()).unwrap(),
+            offset + length as usize,
         ))
     }
 }
 
 pub enum PacketParseError {
     CorruptPacket,
-    UnknownPacket { id: usize },
+    UnknownPacket { id: isize },
 }
 
 macro_rules! inbound_packets {
