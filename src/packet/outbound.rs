@@ -47,7 +47,7 @@ macro_rules! outbound_packets {
 
 outbound_packets!(
     0x00 StatusResponse {
-        status_json: String
+        json_response: String
     },
     0x01 PongResponse {
         timestamp: i64

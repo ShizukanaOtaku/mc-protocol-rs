@@ -30,6 +30,16 @@ impl MCDeserialize for u16 {
     }
 }
 
+impl MCDeserialize for i64 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 8] = bytes[..8].try_into().unwrap();
+        Some((i64::from_be_bytes(bytes), 8))
+    }
+}
+
 impl MCDeserialize for String {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
@@ -100,10 +110,12 @@ macro_rules! inbound_packets {
 }
 
 inbound_packets!(
-    id: 0, state: ConnectionState::Handshaking, HandshakePacket {
+    id: 0x00, state: ConnectionState::Handshaking, HandshakePacket {
         protocol_version: VarInt,
         server_address: String,
         server_port: u16,
         next_state: VarInt
-    }
+    },
+    id: 0x00, state: ConnectionState::Status, StatusRequest {},
+    id: 0x01, state: ConnectionState::Status, PingRequest {timestamp: i64}
 );
