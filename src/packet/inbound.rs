@@ -82,6 +82,15 @@ macro_rules! inbound_packets {
                 }
             }
 
+            pub fn get_name(&self) -> Option<&str> {
+                match (self.get_id(), self.get_state()) {
+                    $(
+                        ($id, $state) => Some(stringify!($name)),
+                    )*
+                    _ => None
+                }
+            }
+
             pub fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
                 match (state, raw_packet.id) {
                     $(($state, $id) => {
@@ -110,7 +119,7 @@ macro_rules! inbound_packets {
 }
 
 inbound_packets!(
-    id: 0x00, state: ConnectionState::Handshaking, HandshakePacket {
+    id: 0x00, state: ConnectionState::Handshaking, Handshake {
         protocol_version: VarInt,
         server_address: String,
         server_port: u16,
