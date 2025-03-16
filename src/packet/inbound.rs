@@ -40,6 +40,16 @@ impl MCDeserialize for i64 {
     }
 }
 
+impl MCDeserialize for u128 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 16] = bytes[..16].try_into().unwrap();
+        Some((u128::from_be_bytes(bytes), 16))
+    }
+}
+
 impl MCDeserialize for String {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
@@ -136,6 +146,6 @@ inbound_packets!(
     // Login
     id: 0x00, state: ConnectionState::Login, LoginStart {
         player_name: String,
-        player_uuid: String
+        player_uuid: u128
     }
 );

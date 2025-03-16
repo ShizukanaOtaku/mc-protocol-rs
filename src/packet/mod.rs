@@ -23,23 +23,29 @@ pub struct RawPacket {
 
 #[allow(clippy::ptr_arg)] // Some packets may be greater than the stack allows, so using the heap
                           // is neccesary
-pub fn parse_packet(buf: &Vec<u8>) -> RawPacket {
+pub fn parse_packet(buf: &Vec<u8>) -> (RawPacket, usize) {
     if buf[0] == 0xFE {
-        return RawPacket {
-            length: 1,
-            id: 0xFE,
-            data: Vec::new(),
-        };
+        return (
+            RawPacket {
+                length: 1,
+                id: 0xFE,
+                data: Vec::new(),
+            },
+            49,
+        );
     }
     let length = VarInt::from_mc_bytes(buf).unwrap();
     let mut shift = length.1;
     let length: isize = length.0.try_into().unwrap();
     let id = VarInt::from_mc_bytes(&buf[shift..]).unwrap();
     shift += id.1;
-    let data = &buf[shift..];
-    RawPacket {
-        length,
-        id: id.0.try_into().unwrap(),
-        data: data.to_vec(),
-    }
+    let data = &buf[shift..shift + length as usize];
+    (
+        RawPacket {
+            length,
+            id: id.0.try_into().unwrap(),
+            data: data.to_vec(),
+        },
+        length as usize + 1,
+    )
 }
