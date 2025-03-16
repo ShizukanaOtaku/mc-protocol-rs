@@ -119,6 +119,7 @@ macro_rules! inbound_packets {
 }
 
 inbound_packets!(
+    id: 0xFE, state: ConnectionState::Handshaking, LegacyServerListPing {},
     id: 0x00, state: ConnectionState::Handshaking, Handshake {
         protocol_version: VarInt,
         server_address: String,

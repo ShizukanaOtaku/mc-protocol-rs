@@ -5,7 +5,7 @@ pub mod data_types;
 pub mod inbound;
 pub mod outbound;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ConnectionState {
     Handshaking,
     Status,
@@ -24,6 +24,13 @@ pub struct RawPacket {
 #[allow(clippy::ptr_arg)] // Some packets may be greater than the stack allows, so using the heap
                           // is neccesary
 pub fn parse_packet(buf: &Vec<u8>) -> RawPacket {
+    if buf[0] == 0xFE {
+        return RawPacket {
+            length: 1,
+            id: 0xFE,
+            data: Vec::new(),
+        };
+    }
     let length = VarInt::from_mc_bytes(&buf).unwrap();
     let mut shift = length.1;
     let length: isize = length.0.try_into().unwrap();
