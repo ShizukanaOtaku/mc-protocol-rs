@@ -24,14 +24,14 @@ You can watch this repository if you want to be notified about the first release
 # Login
 
 ### Clientbound
-- [ ] Disconnect (login)
+- [x] Disconnect (login)
 - [ ] Encryption Request
 - [ ] Login Success
 - [ ] Set Compression
 - [ ] Login Plugin Request
 - [ ] Cookie Request (login)
 ### Serverbound
-- [ ] Login Start
+- [x] Login Start
 - [ ] Encryption Response
 - [ ] Login Plugin Response
 - [ ] Login Acknowledged
