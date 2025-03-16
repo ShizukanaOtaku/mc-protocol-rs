@@ -91,6 +91,7 @@ macro_rules! inbound_packets {
                 }
             }
 
+            #[allow(unused_mut, unused_assignments, unused_variables)]
             pub fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
                 match (state, raw_packet.id) {
                     $(($state, $id) => {
