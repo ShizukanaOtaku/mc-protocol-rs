@@ -10,7 +10,7 @@ You can watch this repository if you want to be notified about the first release
 
 ### Serverbound
 - [x] Handshake
-- [ ] Legacy Server List Ping
+- [x] Legacy Server List Ping
 
 # Status
 
