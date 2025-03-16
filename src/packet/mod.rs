@@ -31,7 +31,7 @@ pub fn parse_packet(buf: &Vec<u8>) -> RawPacket {
             data: Vec::new(),
         };
     }
-    let length = VarInt::from_mc_bytes(&buf).unwrap();
+    let length = VarInt::from_mc_bytes(buf).unwrap();
     let mut shift = length.1;
     let length: isize = length.0.try_into().unwrap();
     let id = VarInt::from_mc_bytes(&buf[shift..]).unwrap();
