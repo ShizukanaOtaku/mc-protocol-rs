@@ -1,6 +1,6 @@
 use super::{data_types::var_int::VarInt, ConnectionState, RawPacket};
 
-pub trait MCDeserialize {
+pub trait MCDecode {
     /// Tries to deserialize the type from raw byes.
     /// On success, returns the deserialized type, as well as the amount of bytes used to recreate
     /// it.

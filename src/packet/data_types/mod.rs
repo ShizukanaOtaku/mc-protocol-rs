@@ -1,4 +1,4 @@
-use super::inbound::MCDeserialize;
+use super::inbound::MCDecode;
 use var_int::VarInt;
 
 pub mod var_int;
@@ -28,7 +28,7 @@ impl MCEncode for String {
     }
 }
 
-impl MCDeserialize for String {
+impl MCDecode for String {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
         Self: Sized,
@@ -44,7 +44,7 @@ impl MCDeserialize for String {
     }
 }
 
-impl MCDeserialize for u16 {
+impl MCDecode for u16 {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
         Self: Sized,
@@ -54,7 +54,7 @@ impl MCDeserialize for u16 {
     }
 }
 
-impl MCDeserialize for i64 {
+impl MCDecode for i64 {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
         Self: Sized,
@@ -64,7 +64,7 @@ impl MCDeserialize for i64 {
     }
 }
 
-impl MCDeserialize for u128 {
+impl MCDecode for u128 {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
         Self: Sized,

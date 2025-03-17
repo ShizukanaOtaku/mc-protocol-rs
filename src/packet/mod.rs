@@ -1,5 +1,5 @@
 use data_types::var_int::VarInt;
-use inbound::MCDeserialize;
+use inbound::MCDecode;
 
 pub mod data_types;
 pub mod inbound;

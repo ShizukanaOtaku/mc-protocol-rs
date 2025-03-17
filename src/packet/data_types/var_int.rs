@@ -1,4 +1,4 @@
-use crate::packet::{data_types::MCEncode, inbound::MCDeserialize};
+use crate::packet::{data_types::MCEncode, inbound::MCDecode};
 
 #[derive(Debug)]
 pub struct VarInt {
@@ -34,7 +34,7 @@ impl TryFrom<VarInt> for isize {
     }
 }
 
-impl MCDeserialize for VarInt {
+impl MCDecode for VarInt {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)> {
         let mut var_int_bytes = Vec::new();
 
