@@ -24,7 +24,7 @@ impl MCDecode for bool {
     where
         Self: Sized,
     {
-        if let Some(byte) = bytes.get(0) {
+        if let Some(byte) = bytes.first() {
             return Some((*byte == 0x01, 1));
         }
         None
@@ -69,10 +69,7 @@ where
     where
         Self: Sized,
     {
-        let (length, shift) = match VarInt::from_mc_bytes(bytes) {
-            Some(length) => length,
-            None => return None,
-        };
+        let (length, shift) = VarInt::from_mc_bytes(bytes)?;
         let mut data = Vec::new();
         let l: usize = length.clone().try_into().unwrap();
         for i in shift..(shift + l) {
@@ -105,7 +102,7 @@ impl MCDecode for String {
         };
         Some((
             String::from_utf8(bytes[offset..offset + length].to_vec()).unwrap(),
-            offset + length as usize,
+            offset + length,
         ))
     }
 }
@@ -127,7 +124,7 @@ impl MCDecode for i8 {
     where
         Self: Sized,
     {
-        if bytes.len() < 1 {
+        if bytes.is_empty() {
             return None;
         }
 
