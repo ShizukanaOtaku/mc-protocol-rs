@@ -1,4 +1,4 @@
-use super::data_types::{var_int::VarInt, MCEncode};
+use super::data_types::{var_int::VarInt, MCEncode, PrefixedArray};
 
 pub fn legacy_server_status(
     protocol_version: i32,
@@ -71,5 +71,11 @@ outbound_packets!(
     0x01 PongResponse { timestamp: i64 },
 
     // Login
-    0x00 Disconnect { reason: String }
+    0x00 Disconnect { reason: String },
+    0x01 EncryptionRequest {
+        server_id: String,
+        public_key: PrefixedArray<i8>,
+        verify_token: PrefixedArray<i8>,
+        should_authenticate: bool
+    }
 );
