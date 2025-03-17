@@ -29,17 +29,18 @@ macro_rules! clientbound_packets {
             $( $variant { $( $field : $ty ),* }, )*
         }
 
+        #[allow(unused_mut)]
         impl Into<Vec<u8>> for ClientboundPacket {
             fn into(self) -> Vec<u8> {
                 match self {
                     $(
                         ClientboundPacket::$variant { $( $field ),* } => {
-                            let mut encoded_packet = Vec::new();
+                            let mut encoded_packet: Vec<u8> = Vec::new();
                             let packet_id = VarInt::new($packet_id).unwrap();
                             $(
                                 encoded_packet.extend($field.into_mc_data());
                             )*
-                            let packet_length = VarInt::new(encoded_packet.len() + &packet_id.bytes()).unwrap();
+                            let packet_length = VarInt::new(encoded_packet.len() + packet_id.bytes()).unwrap();
                             let mut final_packet = Vec::new();
                             final_packet.extend(packet_length.into_mc_data());
                             final_packet.extend(packet_id.into_mc_data());
@@ -82,5 +83,8 @@ clientbound_packets!(
         uuid: u128,
         username: String,
         properties: PrefixedArray<Property>
-    }
+    },
+
+    // Configuration
+    0x03 FinishConfiguration {}
 );
