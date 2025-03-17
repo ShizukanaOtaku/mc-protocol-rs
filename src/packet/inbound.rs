@@ -1,4 +1,7 @@
-use super::{data_types::var_int::VarInt, ConnectionState, RawPacket};
+use super::{
+    data_types::{var_int::VarInt, PrefixedArray},
+    ConnectionState, RawPacket,
+};
 
 pub trait MCDecode {
     /// Tries to deserialize the type from raw byes.
@@ -101,5 +104,9 @@ inbound_packets!(
     id: 0x00, state: ConnectionState::Login, LoginStart {
         player_name: String,
         player_uuid: u128
+    },
+    id: 0x01, state: ConnectionState::Login, EncryptionResponse {
+        shared_secret: PrefixedArray<i8>,
+        verify_token: PrefixedArray<i8>
     }
 );

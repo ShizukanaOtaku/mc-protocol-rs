@@ -104,6 +104,16 @@ impl MCDecode for String {
     }
 }
 
+impl MCDecode for i8 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 1] = bytes[..1].try_into().unwrap();
+        Some((i8::from_be_bytes(bytes), 1))
+    }
+}
+
 impl MCDecode for u16 {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
