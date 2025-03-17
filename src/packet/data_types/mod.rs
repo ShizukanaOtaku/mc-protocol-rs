@@ -19,6 +19,25 @@ macro_rules! impl_size_types_encoding {
 
 impl_size_types_encoding!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, f32, f64);
 
+impl MCDecode for bool {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        if let Some(byte) = bytes.get(0) {
+            return Some((*byte == 0x01, 1));
+        }
+        None
+    }
+}
+
+impl MCEncode for bool {
+    fn into_mc_data(self) -> Vec<u8> {
+        vec![if self { 0x01 } else { 0x00 }]
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrefixedArray<T> {
     data: Vec<T>,
 }
