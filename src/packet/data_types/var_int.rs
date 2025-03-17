@@ -1,6 +1,6 @@
 use crate::packet::{data_types::MCEncode, inbound::MCDecode};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VarInt {
     bytes: Vec<u8>,
 }
@@ -11,28 +11,35 @@ pub enum VarIntParseError {
     NonTerminated,
 }
 
-impl TryFrom<VarInt> for isize {
-    type Error = VarIntParseError;
+macro_rules! impl_var_int_to_int {
+    ($($t:ty),*) => {
+        $(
+        impl TryInto<$t> for VarInt {
+            type Error = VarIntParseError;
 
-    fn try_from(value: VarInt) -> Result<Self, Self::Error> {
-        let mut result = 0;
-        let mut shift = 0;
+            fn try_into(self) -> Result<$t, Self::Error> {
+                let mut result = 0;
+                let mut shift = 0;
 
-        for (i, &byte) in value.bytes.iter().enumerate() {
-            result |= ((byte & 0x7F) as isize) << shift;
-            shift += 7;
+                for (i, &byte) in self.bytes.iter().enumerate() {
+                    result |= ((byte & 0x7F) as isize) << shift;
+                    shift += 7;
 
-            if byte & 0x80 == 0 {
-                if i > 4 {
-                    return Err(VarIntParseError::WrongSize);
+                    if byte & 0x80 == 0 {
+                        if i > 4 {
+                            return Err(VarIntParseError::WrongSize);
+                        }
+                        return Ok(result as $t);
+                    }
                 }
-                return Ok(result);
-            }
-        }
 
-        Err(VarIntParseError::NonTerminated)
+                Err(VarIntParseError::NonTerminated)
+            }
+        })*
     }
 }
+
+impl_var_int_to_int!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, f32, f64);
 
 impl MCDecode for VarInt {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)> {

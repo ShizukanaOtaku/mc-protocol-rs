@@ -19,6 +19,47 @@ macro_rules! impl_size_types_encoding {
 
 impl_size_types_encoding!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize, f32, f64);
 
+pub struct PrefixedArray<T> {
+    data: Vec<T>,
+}
+
+impl<T> MCEncode for PrefixedArray<T>
+where
+    T: MCEncode,
+{
+    fn into_mc_data(self) -> Vec<u8> {
+        let mut data = VarInt::new(self.data.len()).unwrap().into_mc_data();
+        for item in self.data {
+            data.extend(item.into_mc_data());
+        }
+        data
+    }
+}
+
+impl<T> MCDecode for PrefixedArray<T>
+where
+    T: MCDecode,
+{
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let (length, shift) = match VarInt::from_mc_bytes(bytes) {
+            Some(length) => length,
+            None => return None,
+        };
+        let mut data = Vec::new();
+        let l: usize = length.clone().try_into().unwrap();
+        for i in shift..(shift + l) {
+            match <T>::from_mc_bytes(&bytes[i..]) {
+                Some(item) => data.push(item.0),
+                None => return None,
+            }
+        }
+        Some((Self { data }, length.try_into().unwrap()))
+    }
+}
+
 impl MCEncode for String {
     fn into_mc_data(self) -> Vec<u8> {
         let length = VarInt::new(self.len()).unwrap();
@@ -33,12 +74,12 @@ impl MCDecode for String {
     where
         Self: Sized,
     {
-        let (length, offset) = match VarInt::from_mc_bytes(bytes) {
-            Some(data) => (isize::try_from(data.0).unwrap(), data.1),
+        let (length, offset): (usize, usize) = match VarInt::from_mc_bytes(bytes) {
+            Some(data) => (data.0.try_into().unwrap(), data.1),
             None => return None,
         };
         Some((
-            String::from_utf8(bytes[offset..offset + length as usize].to_vec()).unwrap(),
+            String::from_utf8(bytes[offset..offset + length].to_vec()).unwrap(),
             offset + length as usize,
         ))
     }
