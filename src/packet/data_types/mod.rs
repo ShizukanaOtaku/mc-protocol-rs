@@ -1,3 +1,4 @@
+use super::inbound::MCDeserialize;
 use var_int::VarInt;
 
 pub mod var_int;
@@ -24,5 +25,51 @@ impl MCEncode for String {
         let mut data = length.into_mc_data();
         data.extend(self.as_bytes());
         data
+    }
+}
+
+impl MCDeserialize for String {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let (length, offset) = match VarInt::from_mc_bytes(bytes) {
+            Some(data) => (isize::try_from(data.0).unwrap(), data.1),
+            None => return None,
+        };
+        Some((
+            String::from_utf8(bytes[offset..offset + length as usize].to_vec()).unwrap(),
+            offset + length as usize,
+        ))
+    }
+}
+
+impl MCDeserialize for u16 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 2] = bytes[..2].try_into().unwrap();
+        Some((u16::from_be_bytes(bytes), 2))
+    }
+}
+
+impl MCDeserialize for i64 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 8] = bytes[..8].try_into().unwrap();
+        Some((i64::from_be_bytes(bytes), 8))
+    }
+}
+
+impl MCDeserialize for u128 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let bytes: [u8; 16] = bytes[..16].try_into().unwrap();
+        Some((u128::from_be_bytes(bytes), 16))
     }
 }

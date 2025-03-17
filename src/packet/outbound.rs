@@ -1,5 +1,4 @@
-use crate::packet::data_types::MCEncode;
-use crate::packet::VarInt;
+use super::data_types::{var_int::VarInt, MCEncode};
 
 pub fn legacy_server_status(
     protocol_version: i32,
