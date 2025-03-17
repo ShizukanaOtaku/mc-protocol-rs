@@ -26,7 +26,7 @@ You can watch this repository if you want to be notified about the first release
 ### Clientbound
 - [x] Disconnect (login)
 - [ ] Encryption Request
-- [ ] Login Success
+- [x] Login Success
 - [ ] Set Compression
 - [ ] Login Plugin Request
 - [ ] Cookie Request (login)
@@ -34,7 +34,7 @@ You can watch this repository if you want to be notified about the first release
 - [x] Login Start
 - [ ] Encryption Response
 - [ ] Login Plugin Response
-- [ ] Login Acknowledged
+- [x] Login Acknowledged
 - [ ] Cookie Response (login)
 
 # Configuration
@@ -43,7 +43,7 @@ You can watch this repository if you want to be notified about the first release
 - [ ] Cookie Request (configuration)
 - [ ] Clientbound Plugin Message (configuration)
 - [ ] Disconnect (configuration)
-- [ ] Finish Configuration
+- [x] Finish Configuration
 - [ ] Clientbound Keep Alive (configuration)
 - [ ] Ping (configuration)
 - [ ] Reset Chat
