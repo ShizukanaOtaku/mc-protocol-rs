@@ -1,4 +1,4 @@
-use super::inbound::MCDecode;
+use super::serverbound::MCDecode;
 use var_int::VarInt;
 
 pub mod var_int;

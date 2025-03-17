@@ -22,18 +22,18 @@ pub fn legacy_server_status(
 }
 
 #[macro_export]
-macro_rules! outbound_packets {
+macro_rules! clientbound_packets {
     ($( $packet_id:literal $variant:ident { $( $field:ident : $ty:ty ),* } ),* ) => {
         #[derive(Debug)]
-        pub enum OutboundPacket {
+        pub enum ClientboundPacket {
             $( $variant { $( $field : $ty ),* }, )*
         }
 
-        impl Into<Vec<u8>> for OutboundPacket {
+        impl Into<Vec<u8>> for ClientboundPacket {
             fn into(self) -> Vec<u8> {
                 match self {
                     $(
-                        OutboundPacket::$variant { $( $field ),* } => {
+                        ClientboundPacket::$variant { $( $field ),* } => {
                             let mut encoded_packet = Vec::new();
                             let packet_id = VarInt::new($packet_id).unwrap();
                             $(
@@ -51,11 +51,11 @@ macro_rules! outbound_packets {
             }
         }
 
-        impl OutboundPacket {
+        impl ClientboundPacket {
             pub fn id(&self) -> usize {
                 match self {
                     $(
-                        OutboundPacket::$variant { .. } => {
+                        ClientboundPacket::$variant { .. } => {
                             $packet_id
                         }
                     ),*
@@ -65,7 +65,7 @@ macro_rules! outbound_packets {
     };
 }
 
-outbound_packets!(
+clientbound_packets!(
     // Status
     0x00 StatusResponse { json_response: String },
     0x01 PongResponse { timestamp: i64 },

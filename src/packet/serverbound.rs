@@ -28,15 +28,15 @@ pub enum PacketParseError {
     UnknownPacket { id: isize },
 }
 
-macro_rules! inbound_packets {
+macro_rules! serverbound_packets {
     ($(id: $id:literal, state: $state:path, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
-        pub enum InboundPacket {
+        pub enum ServerboundPacket {
             $($name {
                 $($field: $type),*
             }),*
         }
 
-        impl InboundPacket {
+        impl ServerboundPacket {
             pub fn get_state(&self) -> ConnectionState {
                 match self {
                     $(Self::$name{..} => {$state})*
@@ -86,7 +86,7 @@ macro_rules! inbound_packets {
     };
 }
 
-inbound_packets!(
+serverbound_packets!(
     // Handshaking
     id: 0xFE, state: ConnectionState::Handshaking, LegacyServerListPing {},
     id: 0x00, state: ConnectionState::Handshaking, Handshake {

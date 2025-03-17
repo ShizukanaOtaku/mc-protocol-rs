@@ -1,9 +1,9 @@
 use data_types::var_int::VarInt;
-use inbound::MCDecode;
+use serverbound::MCDecode;
 
+pub mod clientbound;
 pub mod data_types;
-pub mod inbound;
-pub mod outbound;
+pub mod serverbound;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ConnectionState {
