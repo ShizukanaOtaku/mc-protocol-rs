@@ -82,7 +82,8 @@ where
     }
 }
 
-pub struct PrefixedOptional<T>(Option<T>);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PrefixedOptional<T>(pub Option<T>);
 
 impl<T> MCEncode for PrefixedOptional<T>
 where
@@ -145,7 +146,7 @@ impl MCDecode for String {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Property(pub String, pub String, pub String);
+pub struct Property(pub String, pub String, pub PrefixedOptional<String>);
 
 impl MCEncode for Property {
     fn into_mc_data(self) -> Vec<u8> {
