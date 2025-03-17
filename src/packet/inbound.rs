@@ -108,5 +108,6 @@ inbound_packets!(
     id: 0x01, state: ConnectionState::Login, EncryptionResponse {
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
-    }
+    },
+    id: 0x03, state: ConnectionState::Login, LoginAcknowledged {}
 );
