@@ -1,4 +1,4 @@
-use super::data_types::{var_int::VarInt, MCEncode, PrefixedArray};
+use super::data_types::{var_int::VarInt, MCEncode, PrefixedArray, Property};
 
 pub fn legacy_server_status(
     protocol_version: i32,
@@ -77,5 +77,10 @@ outbound_packets!(
         public_key: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>,
         should_authenticate: bool
+    },
+    0x02 LoginSuccess {
+        uuid: u128,
+        username: String,
+        properties: PrefixedArray<Property>
     }
 );

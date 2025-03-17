@@ -42,6 +42,12 @@ pub struct PrefixedArray<T> {
     data: Vec<T>,
 }
 
+impl<T> PrefixedArray<T> {
+    pub fn new(data: Vec<T>) -> Self {
+        Self { data }
+    }
+}
+
 impl<T> MCEncode for PrefixedArray<T>
 where
     T: MCEncode,
@@ -104,11 +110,27 @@ impl MCDecode for String {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Property(pub String, pub String, pub String);
+
+impl MCEncode for Property {
+    fn into_mc_data(self) -> Vec<u8> {
+        let mut data = self.0.into_mc_data();
+        data.extend(self.1.into_mc_data());
+        data.extend(self.2.into_mc_data());
+        data
+    }
+}
+
 impl MCDecode for i8 {
     fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
     where
         Self: Sized,
     {
+        if bytes.len() < 1 {
+            return None;
+        }
+
         let bytes: [u8; 1] = bytes[..1].try_into().unwrap();
         Some((i8::from_be_bytes(bytes), 1))
     }
@@ -119,6 +141,10 @@ impl MCDecode for u16 {
     where
         Self: Sized,
     {
+        if bytes.len() < 2 {
+            return None;
+        }
+
         let bytes: [u8; 2] = bytes[..2].try_into().unwrap();
         Some((u16::from_be_bytes(bytes), 2))
     }
@@ -129,6 +155,10 @@ impl MCDecode for i64 {
     where
         Self: Sized,
     {
+        if bytes.len() < 8 {
+            return None;
+        }
+
         let bytes: [u8; 8] = bytes[..8].try_into().unwrap();
         Some((i64::from_be_bytes(bytes), 8))
     }
@@ -139,6 +169,10 @@ impl MCDecode for u128 {
     where
         Self: Sized,
     {
+        if bytes.len() < 16 {
+            return None;
+        }
+
         let bytes: [u8; 16] = bytes[..16].try_into().unwrap();
         Some((u128::from_be_bytes(bytes), 16))
     }

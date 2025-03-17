@@ -17,8 +17,8 @@ pub enum ConnectionState {
 #[derive(Debug)]
 pub struct RawPacket {
     pub length: isize,
-    id: isize,
-    data: Vec<u8>,
+    pub id: isize,
+    pub data: Vec<u8>,
 }
 
 #[allow(clippy::ptr_arg)] // Some packets may be greater than the stack allows, so using the heap
