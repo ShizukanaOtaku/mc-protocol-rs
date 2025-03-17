@@ -82,6 +82,43 @@ where
     }
 }
 
+pub struct PrefixedOptional<T>(Option<T>);
+
+impl<T> MCEncode for PrefixedOptional<T>
+where
+    T: MCEncode,
+{
+    fn into_mc_data(self) -> Vec<u8> {
+        match self.0 {
+            Some(data) => {
+                let mut vec = true.into_mc_data();
+                vec.extend(data.into_mc_data());
+                vec
+            }
+            None => false.into_mc_data(),
+        }
+    }
+}
+
+impl<T> MCDecode for PrefixedOptional<T>
+where
+    T: MCDecode,
+{
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let (contains_field, offset) = bool::from_mc_bytes(bytes)?;
+
+        if !contains_field {
+            return Some((Self(None), 1));
+        }
+
+        let field = T::from_mc_bytes(&bytes[offset..])?;
+        Some((Self(Some(field.0)), offset + field.1))
+    }
+}
+
 impl MCEncode for String {
     fn into_mc_data(self) -> Vec<u8> {
         let length = VarInt::new(self.len()).unwrap();
