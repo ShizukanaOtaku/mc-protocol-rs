@@ -24,7 +24,7 @@ pub trait MCDecode {
 }
 
 pub enum PacketParseError {
-    CorruptPacket,
+    CorruptPacket { problematic_field: String },
     UnknownPacket { id: isize },
 }
 
@@ -70,14 +70,14 @@ macro_rules! serverbound_packets {
                                     data.0
                                 },
                                 None => {
-                                    return Err(PacketParseError::CorruptPacket);
+                                    return Err(PacketParseError::CorruptPacket{ problematic_field: stringify!($field).to_string() });
                                 }
                             };
                         )*
                         let packet = Self::$name {
                             $($field),*
                         };
-                        return Ok(packet);
+                        Ok(packet)
                     }),*,
                     _ => Err(PacketParseError::UnknownPacket{ id: raw_packet.id })
                 }
@@ -109,5 +109,18 @@ serverbound_packets!(
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
     },
-    id: 0x03, state: ConnectionState::Login, LoginAcknowledged {}
+    id: 0x03, state: ConnectionState::Login, LoginAcknowledged {},
+
+    // Configuration
+    id: 0x00, state: ConnectionState::Configuration, ClientInformation {
+        locale: String,
+        view_distance: i8,
+        chat_mode: VarInt,
+        chat_colors: bool,
+        displayed_skin_parts: u8,
+        main_hand: VarInt,
+        enable_text_filtering: bool,
+        allow_server_listings: bool,
+        particle_status: VarInt
+    }
 );

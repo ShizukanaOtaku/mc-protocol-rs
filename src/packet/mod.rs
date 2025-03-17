@@ -38,7 +38,13 @@ pub fn parse_packet(buf: &Vec<u8>) -> Option<(RawPacket, usize)> {
             49,
         ));
     }
+
     let length = VarInt::from_mc_bytes(buf).unwrap();
+
+    if buf.len() < length.0.clone().try_into().unwrap() {
+        return None;
+    }
+
     let mut shift = length.1;
     let length: isize = length.0.try_into().unwrap();
     let id = VarInt::from_mc_bytes(&buf[shift..]).unwrap();

@@ -138,6 +138,11 @@ impl MCDecode for String {
             Some(data) => (data.0.try_into().unwrap(), data.1),
             None => return None,
         };
+
+        if bytes.len() < offset + length {
+            return None;
+        }
+
         Some((
             String::from_utf8(bytes[offset..offset + length].to_vec()).unwrap(),
             offset + length,
@@ -168,6 +173,20 @@ impl MCDecode for i8 {
 
         let bytes: [u8; 1] = bytes[..1].try_into().unwrap();
         Some((i8::from_be_bytes(bytes), 1))
+    }
+}
+
+impl MCDecode for u8 {
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        if bytes.is_empty() {
+            return None;
+        }
+
+        let bytes: [u8; 1] = bytes[..1].try_into().unwrap();
+        Some((u8::from_be_bytes(bytes), 1))
     }
 }
 
