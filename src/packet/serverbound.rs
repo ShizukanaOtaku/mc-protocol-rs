@@ -29,7 +29,7 @@ pub enum PacketParseError {
 }
 
 macro_rules! serverbound_packets {
-    ($(id: $id:literal, state: $state:path, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
+    ($(id: $id:literal, state: $state:ident, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
         pub enum ServerboundPacket {
             $($name {
                 $($field: $type),*
@@ -39,7 +39,7 @@ macro_rules! serverbound_packets {
         impl ServerboundPacket {
             pub fn get_state(&self) -> ConnectionState {
                 match self {
-                    $(Self::$name{..} => {$state})*
+                    $(Self::$name{..} => {ConnectionState::$state})*
                 }
             }
 
@@ -52,7 +52,7 @@ macro_rules! serverbound_packets {
             pub fn get_name(&self) -> Option<&str> {
                 match (self.get_id(), self.get_state()) {
                     $(
-                        ($id, $state) => Some(stringify!($name)),
+                        ($id, ConnectionState::$state) => Some(stringify!($name)),
                     )*
                     _ => None
                 }
@@ -61,7 +61,7 @@ macro_rules! serverbound_packets {
             #[allow(unused_mut, unused_assignments, unused_variables)]
             pub fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
                 match (state, raw_packet.id) {
-                    $(($state, $id) => {
+                    $((ConnectionState::$state, $id) => {
                         let mut offset = 0;
                         $(
                             let $field = match <$type>::from_mc_bytes(&raw_packet.data[offset..]) {
@@ -88,8 +88,8 @@ macro_rules! serverbound_packets {
 
 serverbound_packets!(
     // Handshaking
-    id: 0xFE, state: ConnectionState::Handshaking, LegacyServerListPing {},
-    id: 0x00, state: ConnectionState::Handshaking, Handshake {
+    id: 0xFE, state: Handshaking, LegacyServerListPing {},
+    id: 0x00, state: Handshaking, Handshake {
         protocol_version: VarInt,
         server_address: String,
         server_port: u16,
@@ -97,22 +97,22 @@ serverbound_packets!(
     },
 
     // Status
-    id: 0x00, state: ConnectionState::Status, StatusRequest {},
-    id: 0x01, state: ConnectionState::Status, PingRequest { timestamp: i64 },
+    id: 0x00, state: Status, StatusRequest {},
+    id: 0x01, state: Status, PingRequest { timestamp: i64 },
 
     // Login
-    id: 0x00, state: ConnectionState::Login, LoginStart {
+    id: 0x00, state: Login, LoginStart {
         player_name: String,
         player_uuid: u128
     },
-    id: 0x01, state: ConnectionState::Login, EncryptionResponse {
+    id: 0x01, state: Login, EncryptionResponse {
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
     },
-    id: 0x03, state: ConnectionState::Login, LoginAcknowledged {},
+    id: 0x03, state: Login, LoginAcknowledged {},
 
     // Configuration
-    id: 0x00, state: ConnectionState::Configuration, ClientInformation {
+    id: 0x00, state: Configuration, ClientInformation {
         locale: String,
         view_distance: i8,
         chat_mode: VarInt,
@@ -123,5 +123,5 @@ serverbound_packets!(
         allow_server_listings: bool,
         particle_status: VarInt
     },
-    id: 0x03, state:ConnectionState::Configuration, FinishConfiguration {}
+    id: 0x03, state: Configuration, FinishConfiguration {}
 );
