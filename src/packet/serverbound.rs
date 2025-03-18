@@ -122,5 +122,6 @@ serverbound_packets!(
         enable_text_filtering: bool,
         allow_server_listings: bool,
         particle_status: VarInt
-    }
+    },
+    id: 0x03, state:ConnectionState::Configuration, FinishConfiguration {}
 );
