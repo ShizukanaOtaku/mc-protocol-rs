@@ -1,5 +1,9 @@
-This crate is very early in development, it is not ready to be used for anything yet!!!
+> [!caution]
+> This crate is very early in development, it is not ready to be used for anything yet!!!
 You can watch this repository if you want to be notified about the first release.
+
+# The Minecraft protocol Rust crate
+The purpose of this crate is to provide an easy to use, extensible interface for converting raw byte data from and into Minecraft packets. Currently, the focus is on the 1.21.4 version.
 
 # Features to implement:
 - [ ] Compression
