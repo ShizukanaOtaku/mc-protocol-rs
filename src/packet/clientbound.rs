@@ -29,7 +29,7 @@ macro_rules! clientbound_packets {
             $( $variant { $( $field : $ty ),* }, )*
         }
 
-        #[allow(unused_mut)]
+        #[allow(unused_mut, clippy::from_over_into)]
         impl Into<Vec<u8>> for ClientboundPacket {
             fn into(self) -> Vec<u8> {
                 match self {
