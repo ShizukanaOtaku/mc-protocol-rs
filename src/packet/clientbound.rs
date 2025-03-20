@@ -77,11 +77,8 @@ macro_rules! clientbound_packets {
 }
 
 clientbound_packets!(
-    // Status
     StatusResponse (Status: 0x00) { json_response: String },
     PongResponse (Status: 0x01) { timestamp: i64 },
-
-    // Login
     Disconnect (Status: 0x00) { reason: String },
     EncryptionRequest (Status: 0x01) {
         server_id: String,
@@ -94,7 +91,5 @@ clientbound_packets!(
         username: String,
         properties: PrefixedArray<Property>
     },
-
-    // Configuration
     FinishConfiguration (Configuration: 0x03) {}
 );
