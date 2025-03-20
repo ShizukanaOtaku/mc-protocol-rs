@@ -7,7 +7,7 @@ pub fn legacy_server_status(
     online_players: i32,
     max_players: i32,
 ) -> Vec<u8> {
-    let response = format!("§1\x00{protocol_version}\x00{minecraft_version}\x00{server_name}\x00{online_players}\x00{max_players}",);
+    let response = format!("§1\x00{protocol_version}\x00{minecraft_version}\x00{server_name}\x00{online_players}\x00{max_players}");
 
     let utf16_bytes: Vec<u8> = response
         .encode_utf16()
