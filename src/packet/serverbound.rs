@@ -1,7 +1,7 @@
-use super::{
-    data_types::{var_int::VarInt, PrefixedArray},
-    ConnectionState, RawPacket,
-};
+use crate::packet::data_types::PrefixedArray;
+use crate::packet::ConnectionState;
+use crate::packet::RawPacket;
+use crate::packet::VarInt;
 
 pub trait MCDecode {
     /// Tries to deserialize the type from raw byes.
@@ -29,7 +29,7 @@ pub enum PacketParseError {
 }
 
 macro_rules! serverbound_packets {
-    ($(id: $id:literal, state: $state:ident, $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
+    ($(($($state:ident: $id:literal),*) $name:ident {$($field:ident: $type:ty),*}),*$(,)?) => {
         pub enum ServerboundPacket {
             $($name {
                 $($field: $type),*
@@ -37,29 +37,23 @@ macro_rules! serverbound_packets {
         }
 
         impl ServerboundPacket {
-            pub fn get_state(&self) -> ConnectionState {
-                match self {
-                    $(Self::$name{..} => {ConnectionState::$state})*
-                }
-            }
-
-            pub fn get_id(&self) -> usize {
-                match self {
-                    $(Self::$name{..} => {$id})*
+            pub fn get_id(&self, state: ConnectionState) -> Option<usize> {
+                match (self, state) {
+                    $( $((Self::$name { .. }, ConnectionState::$state) => Some($id)),*, )*
+                        _ => None
                 }
             }
 
             pub fn get_name(&self) -> Option<&str> {
-                match (self.get_id(), self.get_state()) {
-                    $(($id, ConnectionState::$state) => Some(stringify!($name)),)*
-                    _ => None
+                match (self) {
+                    $( Self::$name { .. } => Some(stringify!($name)),)*
                 }
             }
 
             #[allow(unused_mut, unused_assignments, unused_variables)]
             pub fn try_from(state: ConnectionState, raw_packet: RawPacket) -> Result<Self, PacketParseError> {
                 match (state, raw_packet.id) {
-                    $((ConnectionState::$state, $id) => {
+                    $( $( (ConnectionState::$state, $id) )|* => {
                         let mut offset = 0;
                         $(
                             let $field = match <$type>::from_mc_bytes(&raw_packet.data[offset..]) {
@@ -72,45 +66,37 @@ macro_rules! serverbound_packets {
                                 }
                             };
                         )*
-                        let packet = Self::$name {
-                            $($field),*
-                        };
+                            let packet = Self::$name {
+                                $($field),*
+                            };
                         Ok(packet)
-                    }),*
-                    _ => Err(PacketParseError::UnknownPacket{ id: raw_packet.id })
-                }
+                    }, )*
+                    _ => Err(PacketParseError::UnknownPacket{ id: raw_packet.id })}
             }
         }
     };
 }
 
 serverbound_packets!(
-    // Handshaking
-    id: 0xFE, state: Handshaking, LegacyServerListPing {},
-    id: 0x00, state: Handshaking, Handshake {
+    (Handshaking: 0xFE) LegacyServerListPing {},
+    (Handshaking: 0x00) Handshake {
         protocol_version: VarInt,
         server_address: String,
         server_port: u16,
         next_state: VarInt
     },
-
-    // Status
-    id: 0x00, state: Status, StatusRequest {},
-    id: 0x01, state: Status, PingRequest { timestamp: i64 },
-
-    // Login
-    id: 0x00, state: Login, LoginStart {
+    (Status: 0x00) StatusRequest {},
+    (Status: 0x01, Play: 0x24) PingRequest { timestamp: i64 },
+    (Login: 0x00) LoginStart {
         player_name: String,
         player_uuid: u128
     },
-    id: 0x01, state: Login, EncryptionResponse {
+    (Login: 0x01) EncryptionResponse {
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
     },
-    id: 0x03, state: Login, LoginAcknowledged {},
-
-    // Configuration
-    id: 0x00, state: Configuration, ClientInformation {
+    (Login: 0x03) LoginAcknowledged {},
+    (Configuration: 0x00, Play: 0x0C) ClientInformation {
         locale: String,
         view_distance: i8,
         chat_mode: VarInt,
@@ -121,5 +107,5 @@ serverbound_packets!(
         allow_server_listings: bool,
         particle_status: VarInt
     },
-    id: 0x03, state: Configuration, FinishConfiguration {}
+    (Configuration: 0x03) FinishConfiguration {}
 );
