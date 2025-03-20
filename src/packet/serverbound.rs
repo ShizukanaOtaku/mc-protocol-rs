@@ -51,9 +51,7 @@ macro_rules! serverbound_packets {
 
             pub fn get_name(&self) -> Option<&str> {
                 match (self.get_id(), self.get_state()) {
-                    $(
-                        ($id, ConnectionState::$state) => Some(stringify!($name)),
-                    )*
+                    $(($id, ConnectionState::$state) => Some(stringify!($name)),)*
                     _ => None
                 }
             }
@@ -78,7 +76,7 @@ macro_rules! serverbound_packets {
                             $($field),*
                         };
                         Ok(packet)
-                    }),*,
+                    }),*
                     _ => Err(PacketParseError::UnknownPacket{ id: raw_packet.id })
                 }
             }
