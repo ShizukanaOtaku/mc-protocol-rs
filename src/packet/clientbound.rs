@@ -1,4 +1,7 @@
-use super::data_types::{var_int::VarInt, MCEncode, PrefixedArray, Property};
+use super::data_types::{PrefixedArray, Property};
+use crate::packet::data_types::MCEncode;
+use crate::packet::ConnectionState;
+use crate::packet::VarInt;
 
 pub fn legacy_server_status(
     protocol_version: i32,
@@ -21,45 +24,52 @@ pub fn legacy_server_status(
     packet
 }
 
+#[derive(Debug)]
+pub enum PacketSerializationError {
+    InvalidState {
+        packet: String,
+        state: ConnectionState,
+    },
+}
+
 #[macro_export]
 macro_rules! clientbound_packets {
-    ($( $packet_id:literal $variant:ident { $( $field:ident : $ty:ty ),* } ),* ) => {
+    ($( $name:ident ($($state:ident: $id:literal),*) { $($field:ident: $type:ty),* }),*$(,)?) => {
         #[derive(Debug)]
         pub enum ClientboundPacket {
-            $( $variant { $( $field : $ty ),* }, )*
-        }
-
-        #[allow(unused_mut, clippy::from_over_into)]
-        impl Into<Vec<u8>> for ClientboundPacket {
-            fn into(self) -> Vec<u8> {
-                match self {
-                    $(
-                        ClientboundPacket::$variant { $( $field ),* } => {
-                            let mut encoded_packet: Vec<u8> = Vec::new();
-                            let packet_id = VarInt::new($packet_id).unwrap();
-                            $(
-                                encoded_packet.extend($field.into_mc_data());
-                            )*
-                            let packet_length = VarInt::new(encoded_packet.len() + packet_id.bytes()).unwrap();
-                            let mut final_packet = Vec::new();
-                            final_packet.extend(packet_length.into_mc_data());
-                            final_packet.extend(packet_id.into_mc_data());
-                            final_packet.extend(encoded_packet);
-                            final_packet
-                        }
-                    ),*
-                }
-            }
+            $( $name { $( $field : $type ),* }, )*
         }
 
         impl ClientboundPacket {
-            pub fn id(&self) -> usize {
+            #[allow(unused_mut)]
+            pub fn serialize(self, state: ConnectionState) -> Result<Vec<u8>, PacketSerializationError> {
                 match self {
-                    $(
-                        ClientboundPacket::$variant { .. } => {
-                            $packet_id
-                        }
+                    $( Self::$name { $($field),* } => {
+                        let id = match state {
+                            $(ConnectionState::$state => $id),*,
+                            _ => return Err(PacketSerializationError::InvalidState {packet: stringify!($name).to_string(), state})
+                        };
+                        let mut encoded_packet: Vec<u8> = Vec::new();
+                        let id = VarInt::new(id).unwrap();
+                        $(
+                            encoded_packet.extend($field.into_mc_data());
+                        )*
+
+                        let packet_length = VarInt::new(encoded_packet.len() + id.bytes()).unwrap();
+                        let mut final_packet = Vec::new();
+                        final_packet.extend(packet_length.into_mc_data());
+                        final_packet.extend(id.into_mc_data());
+                        final_packet.extend(encoded_packet);
+                        Ok(final_packet)
+                    }
                     ),*
+                }
+            }
+
+            pub fn id(&self, state: ConnectionState) -> Option<usize> {
+                match (self, state) {
+                    $( $((Self::$name { .. }, ConnectionState::$state) => Some($id)),*, )*
+                        _ => None
                 }
             }
         }
@@ -68,23 +78,23 @@ macro_rules! clientbound_packets {
 
 clientbound_packets!(
     // Status
-    0x00 StatusResponse { json_response: String },
-    0x01 PongResponse { timestamp: i64 },
+    StatusResponse (Status: 0x00) { json_response: String },
+    PongResponse (Status: 0x01) { timestamp: i64 },
 
     // Login
-    0x00 Disconnect { reason: String },
-    0x01 EncryptionRequest {
+    Disconnect (Status: 0x00) { reason: String },
+    EncryptionRequest (Status: 0x01) {
         server_id: String,
         public_key: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>,
         should_authenticate: bool
     },
-    0x02 LoginSuccess {
+    LoginSuccess (Status: 0x02) {
         uuid: u128,
         username: String,
         properties: PrefixedArray<Property>
     },
 
     // Configuration
-    0x03 FinishConfiguration {}
+    FinishConfiguration (Configuration: 0x03) {}
 );
