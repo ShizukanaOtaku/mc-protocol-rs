@@ -31,7 +31,7 @@ pub enum PacketParseError {
 }
 
 macro_rules! serverbound_packets {
-    ($( $name:ident ($($state:ident: $id:literal),*) {$($field:ident: $type:ty),*}),*$(,)?) => {
+    ($( $name:ident ($($state:ident: $id:literal),*) {$($field:ident: $type:ty),*})*) => {
         pub enum ServerboundPacket {
             $($name {
                 $($field: $type),*
@@ -80,32 +80,32 @@ macro_rules! serverbound_packets {
 }
 
 serverbound_packets!(
-    LegacyServerListPing (Handshaking: 0xFE) {},
+    LegacyServerListPing (Handshaking: 0xFE) {}
     Handshake (Handshaking: 0x00) {
         protocol_version: VarInt,
         server_address: String,
         server_port: u16,
         next_state: VarInt
-    },
-    StatusRequest (Status: 0x00) {},
-    PingRequest (Status: 0x01, Play: 0x24) { timestamp: i64 },
+    }
+    StatusRequest (Status: 0x00) {}
+    PingRequest (Status: 0x01, Play: 0x24) { timestamp: i64 }
     LoginStart (Login: 0x00) {
         player_name: String,
         player_uuid: u128
-    },
+    }
     EncryptionResponse (Login: 0x01) {
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
-    },
+    }
     LoginPluginResponse (Login: 0x02) {
         message_id: VarInt,
         data: PrefixedOptional<Vec<i8>>
-    },
-    LoginAcknowledged (Login: 0x03) {},
+    }
+    LoginAcknowledged (Login: 0x03) {}
     CookieResponse (Login: 0x04) {
         key: String,
         payload: PrefixedOptional<PrefixedArray<i8>>
-    },
+    }
     ClientInformation (Configuration: 0x00, Play: 0x0C) {
         locale: String,
         view_distance: i8,
@@ -116,6 +116,6 @@ serverbound_packets!(
         enable_text_filtering: bool,
         allow_server_listings: bool,
         particle_status: VarInt
-    },
+    }
     FinishConfiguration (Configuration: 0x03) {}
 );

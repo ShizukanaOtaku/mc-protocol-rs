@@ -34,7 +34,7 @@ pub enum PacketSerializationError {
 
 #[macro_export]
 macro_rules! clientbound_packets {
-    ($( $name:ident ($($state:ident: $id:literal),*) { $($field:ident: $type:ty),* }),*$(,)?) => {
+    ($( $name:ident ($($state:ident: $id:literal),*) {$($field:ident: $type:ty),*})*) => {
         #[derive(Debug)]
         pub enum ClientboundPacket {
             $( $name { $( $field : $type ),* }, )*
@@ -77,26 +77,26 @@ macro_rules! clientbound_packets {
 }
 
 clientbound_packets!(
-    StatusResponse (Status: 0x00) { json_response: String },
-    PongResponse (Status: 0x01) { timestamp: i64 },
-    Disconnect (Status: 0x00) { reason: String },
+    StatusResponse (Status: 0x00) { json_response: String }
+    PongResponse (Status: 0x01) { timestamp: i64 }
+    Disconnect (Status: 0x00) { reason: String }
     EncryptionRequest (Status: 0x01) {
         server_id: String,
         public_key: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>,
         should_authenticate: bool
-    },
+    }
     LoginSuccess (Status: 0x02) {
         uuid: u128,
         username: String,
         properties: PrefixedArray<Property>
-    },
-    SetCompression (Login: 0x03) { threshold: VarInt },
+    }
+    SetCompression (Login: 0x03) { threshold: VarInt }
     LoginPluginRequest (Login: 0x04) {
         message_id: VarInt,
         channel: String,
         data: Vec<i8>
-    },
-    CookieRequest (Login: 0x05) { key: String },
+    }
+    CookieRequest (Login: 0x05) { key: String }
     FinishConfiguration (Configuration: 0x03) {}
 );
