@@ -175,3 +175,16 @@ impl MCEncode for Property {
         data
     }
 }
+
+impl<T> MCEncode for Vec<T>
+where
+    T: MCEncode,
+{
+    fn into_mc_data(self) -> Vec<u8> {
+        let mut data = Vec::new();
+        for item in self {
+            data.extend(item.into_mc_data());
+        }
+        data
+    }
+}

@@ -91,5 +91,12 @@ clientbound_packets!(
         username: String,
         properties: PrefixedArray<Property>
     },
+    SetCompression (Login: 0x03) { threshold: VarInt },
+    LoginPluginRequest (Login: 0x04) {
+        message_id: VarInt,
+        channel: String,
+        data: Vec<i8>
+    },
+    CookieRequest (Login: 0x05) { key: String },
     FinishConfiguration (Configuration: 0x03) {}
 );
