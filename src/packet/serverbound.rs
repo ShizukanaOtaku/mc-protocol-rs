@@ -3,6 +3,8 @@ use crate::packet::ConnectionState;
 use crate::packet::RawPacket;
 use crate::packet::VarInt;
 
+use super::data_types::PrefixedOptional;
+
 pub trait MCDecode {
     /// Tries to deserialize the type from raw byes.
     /// On success, returns the deserialized type, as well as the amount of bytes used to recreate
@@ -95,7 +97,15 @@ serverbound_packets!(
         shared_secret: PrefixedArray<i8>,
         verify_token: PrefixedArray<i8>
     },
+    LoginPluginResponse (Login: 0x02) {
+        message_id: VarInt,
+        data: PrefixedOptional<Vec<i8>>
+    },
     LoginAcknowledged (Login: 0x03) {},
+    CookieResponse (Login: 0x04) {
+        key: String,
+        payload: PrefixedOptional<PrefixedArray<i8>>
+    },
     ClientInformation (Configuration: 0x00, Play: 0x0C) {
         locale: String,
         view_distance: i8,

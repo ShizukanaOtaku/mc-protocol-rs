@@ -188,3 +188,31 @@ where
         data
     }
 }
+
+impl<T> MCDecode for Vec<T>
+where
+    T: MCDecode,
+{
+    fn from_mc_bytes(bytes: &[u8]) -> Option<(Self, usize)>
+    where
+        Self: Sized,
+    {
+        let mut offset = 0;
+        let mut vec = Vec::new();
+        loop {
+            match <T>::from_mc_bytes(bytes) {
+                Some((item, shift)) => {
+                    offset += shift;
+                    vec.push(item);
+                }
+                None => {
+                    return if vec.is_empty() {
+                        None
+                    } else {
+                        Some((vec, offset))
+                    }
+                }
+            }
+        }
+    }
+}
