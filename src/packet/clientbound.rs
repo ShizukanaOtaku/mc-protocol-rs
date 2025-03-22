@@ -1,3 +1,4 @@
+use super::data_types::PrefixedOptional;
 use super::data_types::{PrefixedArray, Property};
 use crate::packet::data_types::MCEncode;
 use crate::packet::ConnectionState;
@@ -79,7 +80,7 @@ macro_rules! clientbound_packets {
 clientbound_packets!(
     StatusResponse (Status: 0x00) { json_response: String }
     PongResponse (Status: 0x01) { timestamp: i64 }
-    Disconnect (Status: 0x00) { reason: String }
+    Disconnect (Status: 0x00, Configuration: 0x02) { reason: String }
     EncryptionRequest (Status: 0x01) {
         server_id: String,
         public_key: PrefixedArray<i8>,
@@ -97,6 +98,15 @@ clientbound_packets!(
         channel: String,
         data: Vec<i8>
     }
-    CookieRequest (Login: 0x05) { key: String }
+    CookieRequest (Login: 0x05, Configuration: 0x00) { key: String }
+    PluginMessage (Configuration: 0x01) {
+        channel: String,
+        data: Vec<i8>
+    }
     FinishConfiguration (Configuration: 0x03) {}
+    KeepAlive (Configuration: 0x04) { keep_alive_id: i64 }
+    Ping (Configuration: 0x05) { id: i32 }
+    ResetChat (Configuration: 0x06) {}
+    RegistryData (Configuration: 0x07) { uuid: PrefixedOptional<u128> }
+    AddResourcePack (Configuration: 0x08) {}
 );
