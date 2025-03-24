@@ -8,6 +8,7 @@ The purpose of this crate is to provide an easy to use, extensible interface for
 # Features to implement:
 - [ ] Compression
 - [ ] All the data types
+- [ ] Don't just unwrap and expect like a dummy
 
 # Packets:
 # Handshaking
